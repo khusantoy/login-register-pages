@@ -1,59 +1,195 @@
 import 'package:flutter/material.dart';
+import 'package:login_register/pages/home_page.dart';
 
-class LoginPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  bool show1 = false;
+  bool show2 = false;
+
+  bool showSuccesWindow = false;
+
+  final formKey = GlobalKey<FormState>();
+
+  void check() {
+    if (showSuccesWindow) {
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: const Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green,
+                  size: 30,
+                ),
+                Text("Your accoun has active"),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    )),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => HomePage(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Ok',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Welcome back',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              flex: 3,
+              flex: 5,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Let's Login to Connect your Email"),
+                  const Text(
+                    "Register",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  const Text("Create your account for your schedule"),
                   const SizedBox(
                     height: 20,
                   ),
                   Form(
+                    key: formKey,
                     child: Column(
                       children: [
                         TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter your name?";
+                            } else if (int.tryParse(value) != null) {
+                              return "Name is wrong";
+                            }
+                            return null;
+                          },
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.email),
-                            hintText: 'name@example.com',
+                            prefixIcon: Icon(Icons.person),
+                            hintText: 'Your name',
                           ),
                         ),
                         const SizedBox(
                           height: 20,
                         ),
                         TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter your email";
+                            } else if (value.length < 5) {
+                              return "Email is wrong";
+                            } else if (!value.contains('@')) {
+                              return "Email is wrong";
+                            }
+
+                            return null;
+                          },
+                          keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.key),
+                            prefixIcon: Icon(Icons.email),
+                            hintText: 'Your email',
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter your Password";
+                            } else if (value.length < 8) {
+                              return "Must have length of password is more then 8";
+                            }
+
+                            return null;
+                          },
+                          obscureText: !show1,
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.key),
                             hintText: '**********************',
-                            suffixIcon: Icon(Icons.remove_red_eye_outlined),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  show1 = !show1;
+                                });
+                              },
+                              icon: show1
+                                  ? const Icon(Icons.visibility)
+                                  : const Icon(Icons.visibility_off),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter your Password";
+                            } else if (value.length < 8) {
+                              return "Must have length of password is more then 8";
+                            }
+
+                            return null;
+                          },
+                          obscureText: !show2,
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.key),
+                            hintText: '**********************',
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  show2 = !show2;
+                                });
+                              },
+                              icon: show2
+                                  ? const Icon(Icons.visibility)
+                                  : const Icon(Icons.visibility_off),
+                            ),
                           ),
                         )
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Text('Forgot your password?'),
                   const SizedBox(
                     height: 20,
                   ),
@@ -65,13 +201,13 @@ class LoginPage extends StatelessWidget {
                         text: const TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Don\'t have an account? ',
+                              text: 'You have an account? ',
                               style: TextStyle(
                                 color: Colors.black,
                               ),
                             ),
                             TextSpan(
-                              text: 'Sign up here',
+                              text: 'Sign in here',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
@@ -99,63 +235,19 @@ class LoginPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          setState(() {
+                            showSuccesWindow = true;
+                            check();
+                          });
+                        }
+                      },
                       child: const Text(
-                        'Login',
+                        'Continue',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "assets/images/apple.png",
-                                width: 40,
-                              ),
-                              const Text("Apple")
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                "assets/images/google.png",
-                                width: 20,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              const Text("Google")
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
                   ),
                   const SizedBox(
                     height: 10,

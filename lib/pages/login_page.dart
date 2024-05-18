@@ -1,6 +1,38 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-class LoginPage extends StatelessWidget {
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:login_register/pages/home_page.dart';
+import 'package:login_register/pages/register_page.dart';
+import 'package:path_provider/path_provider.dart';
+
+class LoginPage extends StatefulWidget {
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final formKey = GlobalKey<FormState>();
+  bool show = false;
+
+  void write(String text) async {
+    final Directory directory = await getApplicationDocumentsDirectory();
+    final File file = File('${directory.path}/my_file.txt');
+    await file.writeAsString(text);
+  }
+
+  Future<String> read() async {
+    String text = '';
+    try {
+      final Directory directory = await getApplicationDocumentsDirectory();
+      final File file = File('${directory.path}/my_file.txt');
+      text = await file.readAsString();
+    } catch (e) {
+      print("Couldn't read file");
+    }
+    return text;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,9 +59,21 @@ class LoginPage extends StatelessWidget {
                     height: 20,
                   ),
                   Form(
+                    key: formKey,
                     child: Column(
                       children: [
                         TextFormField(
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter your email";
+                            } else if (!value.contains('@') ||
+                                value.length < 5) {
+                              return "Email is wrong";
+                            }
+
+                            return null;
+                          },
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.email),
@@ -40,11 +84,30 @@ class LoginPage extends StatelessWidget {
                           height: 20,
                         ),
                         TextFormField(
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.key),
+                          obscureText: !show,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter your password";
+                            } else if (value.length < 8) {
+                              return "Password is very short. Min length is 8";
+                            }
+
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            prefixIcon: const Icon(Icons.key),
                             hintText: '**********************',
-                            suffixIcon: Icon(Icons.remove_red_eye_outlined),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  show = !show;
+                                });
+                              },
+                              icon: show
+                                  ? const Icon(Icons.visibility)
+                                  : const Icon(Icons.visibility_off),
+                            ),
                           ),
                         )
                       ],
@@ -62,22 +125,29 @@ class LoginPage extends StatelessWidget {
                     children: [
                       RichText(
                         textAlign: TextAlign.center,
-                        text: const TextSpan(
+                        text: TextSpan(
                           children: [
-                            TextSpan(
+                            const TextSpan(
                               text: 'Don\'t have an account? ',
                               style: TextStyle(
                                 color: Colors.black,
                               ),
                             ),
                             TextSpan(
-                              
                               text: 'Sign up here',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
                                 decoration: TextDecoration.underline,
                               ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (ctx) => RegisterPage(),
+                                    ),
+                                  );
+                                },
                             ),
                           ],
                         ),
@@ -100,7 +170,15 @@ class LoginPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (ctx) => HomePage(),
+                            ),
+                          );
+                        }
+                      },
                       child: const Text(
                         'Login',
                         style: TextStyle(color: Colors.white),
